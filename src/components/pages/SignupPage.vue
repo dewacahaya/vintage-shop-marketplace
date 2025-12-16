@@ -1,0 +1,11 @@
+<script setup>
+import WebSignup from '../auth/WebSignup.vue';
+</script>
+
+<template>
+    <WebSignup/>
+</template>
+
+<style scoped>
+
+</style>
