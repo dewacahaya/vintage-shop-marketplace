@@ -20,7 +20,7 @@ export default {
         },
         getCartGrandTotal: (state, getters) => {
             return getters.getCartSubtotal + getters.getCartShipping;
-        }
+        },
     },
     mutations: {
         addItems(state, product) {
@@ -54,6 +54,9 @@ export default {
                 item.quantity += change;
                 if (item.quantity < 1) item.quantity = 1;
             }
+        },
+        clearCart(state) {
+            state.cartItems = [];
         }
     },
     actions: {
@@ -77,6 +80,9 @@ export default {
             }
             commit('updateQty', { index, change });
             return true;
+        },
+        confirmCheckout({commit}){
+            commit('clearCart');
         }
     }
 }

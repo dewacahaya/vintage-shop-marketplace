@@ -133,6 +133,18 @@ export default {
                     dispatch("setUserLogout");
                 }
             }
-        }
+        },
+        async updateUser({ commit, state }, payload) {
+            try {
+                const { data } = await axios.put(
+                    `${DB_URL}/users/${payload.userId}.json?auth=${state.token}`,
+                    payload
+                );
+                commit("setUserLogin", { userData: payload, loginStatus: true });
+            } catch (err) {
+                console.log(err);
+                throw err;
+            }
+        },
     }
 }

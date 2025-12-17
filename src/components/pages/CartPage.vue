@@ -1,10 +1,12 @@
 <script setup>
 import { onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 import ProductCard from '../ui/ProductCard.vue';
 import BaseButton from '../ui/BaseButton.vue';
 
 const store = useStore();
+const router = useRouter();
 
 const cartItems = computed(() => store.getters['cart/getCartItems']);
 const totalItems = computed(() => store.getters['cart/getCartCount']);
@@ -42,6 +44,10 @@ const removeItem = (index) => {
         store.dispatch('cart/removeFromCart', index);
     }
 };
+
+const goToCheckout = () => {
+    router.push({ name: 'checkout' });
+}
 </script>
 
 <template>
@@ -127,7 +133,7 @@ const removeItem = (index) => {
                             <span>Total</span>
                             <span class="text-teal-700">{{ formatRupiah(cartGrandTotal) }}</span>
                         </div>
-                        <BaseButton
+                        <BaseButton @click="goToCheckout"
                             class="w-full bg-teal-700 text-white py-3 rounded-lg font-medium hover:bg-teal-800 transition shadow-lg">
                             Checkout ({{ totalItems }})
                         </BaseButton>
