@@ -42,7 +42,7 @@ export default {
         async fetchProductDetail({ commit }, payload) {
             try {
                 const { data } = await axios.get(`${DB_URL}/products/${payload}.json`);
-                commit("setProductDetail", data)
+                commit("setProductDetail", {id: payload, ...data})
             } catch (error) {
                 console.log(error)
             }

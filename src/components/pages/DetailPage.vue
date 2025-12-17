@@ -51,6 +51,7 @@ const otherProducts = computed(() => {
 });
 
 const addToCart = () => {
+    store.dispatch('cart/addToCart', product.value);
     showSuccessModal.value = true;
 };
 
@@ -76,7 +77,8 @@ const staticInfo = {
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <div class="rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
                     <div class="aspect-square w-full">
-                        <img :src="product.image" :alt="product.name" class="w-full h-full object-center object-contain">
+                        <img :src="product.image" :alt="product.name"
+                            class="w-full h-full object-center object-contain">
                     </div>
                 </div>
                 <div class="flex flex-col">
@@ -97,7 +99,8 @@ const staticInfo = {
                         <span>{{ staticInfo.location }}</span>
                     </div>
                     <div class="mb-8">
-                        <h3 class="text-sm font-semibold text-slate-900 mb-2 uppercase tracking-wide">Item Description</h3>
+                        <h3 class="text-sm font-semibold text-slate-900 mb-2 uppercase tracking-wide">Item Description
+                        </h3>
                         <p class="text-slate-600 text-sm leading-relaxed">
                             {{ product.description }}
                         </p>
@@ -126,29 +129,40 @@ const staticInfo = {
                         <div class="flex">
                             <span class="w-32 text-slate-500 font-medium">Shipping</span>
                             <span class="text-slate-900">
-                                {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.shipping || 0) }}
+                                {{ new Intl.NumberFormat('id-ID', {
+                                    style: 'currency', currency: 'IDR',
+                                    minimumFractionDigits: 0
+                                }).format(product.shipping || 0) }}
                             </span>
                         </div>
                     </div>
                     <div class="flex flex-col gap-3 mb-8">
-                        <BaseButton class="w-full py-3 justify-center font-semibold text-base bg-[#178A8D] cursor-pointer text-white hover:bg-teal-800 transition shadow-md">
+                        <BaseButton
+                            class="w-full py-3 justify-center font-semibold text-base bg-[#178A8D] cursor-pointer text-white hover:bg-teal-800 transition shadow-md">
                             Buy Now
                         </BaseButton>
-                        <BaseButton @click="addToCart" class="w-full py-3 justify-center font-semibold text-base text-teal-700 border-2 border-teal-700 hover:bg-teal-50 transition">
+                        <BaseButton @click="addToCart"
+                            class="w-full py-3 justify-center font-semibold text-base text-teal-700 border-2 border-teal-700 hover:bg-teal-50 transition">
                             Add to Cart
                         </BaseButton>
                     </div>
-                    <div class="border border-slate-200 rounded-xl p-4 flex items-center shadow-sm hover:border-teal-200 transition bg-white">
-                        <img :src="staticInfo.seller.avatar" alt="Seller Avatar" class="w-12 h-12 rounded-full mr-4 bg-gray-200">
+                    <div
+                        class="border border-slate-200 rounded-xl p-4 flex items-center shadow-sm hover:border-teal-200 transition bg-white">
+                        <img :src="staticInfo.seller.avatar" alt="Seller Avatar"
+                            class="w-12 h-12 rounded-full mr-4 bg-gray-200">
                         <div>
                             <h4 class="font-semibold text-slate-900 text-sm">{{ staticInfo.seller.name }}</h4>
                             <div class="flex items-center mt-1">
                                 <div class="flex text-yellow-400 mr-2">
-                                    <svg v-for="i in 5" :key="i" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
-                                        <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.11c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.007z" clip-rule="evenodd" />
+                                    <svg v-for="i in 5" :key="i" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                        fill="currentColor" class="w-4 h-4">
+                                        <path fill-rule="evenodd"
+                                            d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.11c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.007z"
+                                            clip-rule="evenodd" />
                                     </svg>
                                 </div>
-                                <span class="text-xs text-slate-500">({{ staticInfo.seller.reviewCount }} reviews)</span>
+                                <span class="text-xs text-slate-500">({{ staticInfo.seller.reviewCount }}
+                                    reviews)</span>
                             </div>
                         </div>
                     </div>
@@ -177,12 +191,14 @@ const staticInfo = {
             </p>
             <div class="w-full max-w-xs flex flex-col gap-3">
                 <router-link to="/" class="block w-full">
-                    <base-button class="w-full bg-white border border-teal-600 text-teal-600 hover:bg-teal-50 font-medium py-3 rounded-lg transition">
+                    <base-button
+                        class="w-full bg-white border border-teal-600 text-teal-600 hover:bg-teal-50 font-medium py-3 rounded-lg transition">
                         Continue Shopping
                     </base-button>
                 </router-link>
                 <router-link to="/cart" class="block w-full">
-                    <base-button class="w-full bg-teal-700 text-white hover:bg-teal-800 font-medium py-3 rounded-lg transition shadow-sm">
+                    <base-button
+                        class="w-full bg-teal-700 text-white hover:bg-teal-800 font-medium py-3 rounded-lg transition shadow-sm">
                         Go to Cart
                     </base-button>
                 </router-link>

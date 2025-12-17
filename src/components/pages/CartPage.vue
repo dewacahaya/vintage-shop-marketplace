@@ -1,84 +1,46 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { onMounted, computed } from 'vue';
+import { useStore } from 'vuex';
 import ProductCard from '../ui/ProductCard.vue';
 import BaseButton from '../ui/BaseButton.vue';
 
-// --- 1. DATA DUMMY CART (Nanti diganti dengan data dari Vuex Store) ---
-const cartItems = ref([
-    // {
-    //     id: 1,
-    //     title: 'White crewneck',
-    //     size: '8 / M',
-    //     price: 200000,
-    //     quantity: 1,
-    //     image: 'https://placehold.co/150x150/e2e8f0/1e293b?text=White+Crewneck'
-    // },
-    // {
-    //     id: 2,
-    //     title: 'Red crewneck',
-    //     size: '8 / M',
-    //     price: 200000,
-    //     quantity: 1,
-    //     image: 'https://placehold.co/150x150/800000/ffffff?text=Red+Crewneck'
-    // },
-    // {
-    //     id: 3,
-    //     title: 'Red crewneck',
-    //     size: '8 / M',
-    //     price: 200000,
-    //     quantity: 1,
-    //     image: 'https://placehold.co/150x150/800000/ffffff?text=Red+Crewneck'
-    // },
-    // {
-    //     id: 4,
-    //     title: 'Red crewneck',
-    //     size: '8 / M',
-    //     price: 200000,
-    //     quantity: 1,
-    //     image: 'https://placehold.co/150x150/800000/ffffff?text=Red+Crewneck'
-    // },
-]);
+const store = useStore();
 
-// --- 2. DATA DUMMY REKOMENDASI ---
-const recommendations = ref([
-    { id: 1, title: 'Vintage chicago cubs', price: 200000, desc: '8 / M', img: 'https://placehold.co/300x300/e2e8f0/1e293b?text=Rec+1' },
-    { id: 2, title: 'Red Crewneck', price: 200000, desc: '8 / M', img: 'https://placehold.co/300x300/e2e8f0/1e293b?text=Rec+2' },
-    { id: 3, title: 'Necklace', price: 200000, desc: '8 / M', img: 'https://placehold.co/300x300/e2e8f0/1e293b?text=Rec+3' },
-    { id: 4, title: 'Necklace', price: 200000, desc: '8 / M', img: 'https://placehold.co/300x300/e2e8f0/1e293b?text=Rec+4' },
-]);
+const cartItems = computed(() => store.getters['cart/getCartItems']);
+const totalItems = computed(() => store.getters['cart/getCartCount']);
 
-// --- 3. LOGIC & COMPUTED ---
+const cartSubtotal = computed(() => store.getters['cart/getCartSubtotal']);
+const cartShipping = computed(() => store.getters['cart/getCartShipping']);
+const cartGrandTotal = computed(() => store.getters['cart/getCartGrandTotal']);
 
-// Hitung Total Harga
-const subtotal = computed(() => {
-    return cartItems.value.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+const recommendations = computed(() => {
+    const allProducts = store.getters['product/getProducts'] || [];
+    return allProducts.slice(0, 4);
 });
 
-// Hitung Total Item
-const totalItems = computed(() => {
-    return cartItems.value.reduce((acc, item) => acc + item.quantity, 0);
+onMounted(() => {
+    if (recommendations.value.length === 0) {
+        store.dispatch('product/fetchProductData');
+    }
 });
 
-// Format Rupiah
 const formatRupiah = (number) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
 };
+const decreaseQty = async (index) => {
+    await store.dispatch('cart/changeQuantity', { index, change: -1 });
+};
 
-// Fungsi Kurang Qty
-const decreaseQty = (index) => {
-    if (cartItems.value[index].quantity > 1) {
-        cartItems.value[index].quantity--;
+const increaseQty = async (index, itemTitle) => {
+    const success = await store.dispatch('cart/changeQuantity', { index, change: 1 });
+    if (!success) {
+        alert(`Sorry, stock for "${itemTitle}" is limited.`);
     }
 };
-
-// Fungsi Tambah Qty
-const increaseQty = (index) => {
-    cartItems.value[index].quantity++;
-};
-
-// Fungsi Hapus Item
 const removeItem = (index) => {
-    cartItems.value.splice(index, 1);
+    if (confirm("Are you sure you want to remove this item?")) {
+        store.dispatch('cart/removeFromCart', index);
+    }
 };
 </script>
 
@@ -101,16 +63,22 @@ const removeItem = (index) => {
                         </svg>
                         <span>Shipping to <strong>Kuta, Badung</strong></span>
                     </div>
-                    <div class="space-y-6">
+                    <div v-if="cartItems.length > 0" class="space-y-6">
                         <div v-for="(item, index) in cartItems" :key="item.id"
                             class="flex flex-col sm:flex-row gap-4 border-b border-gray-100 pb-6 last:border-0">
-                            <div class="w-full sm:w-24 h-24 shrink-0 bg-gray-100 rounded-md overflow-hidden">
+
+                            <div class="w-full sm:w-24 h-24 shrink-0 bg-gray-100 rounded-md overflow-hidden relative">
                                 <img :src="item.image" class="w-full h-full object-cover" :alt="item.title">
+                                <div v-if="item.quantity >= item.stock"
+                                    class="absolute bottom-0 w-full bg-red-500 text-white text-[10px] text-center py-0.5">
+                                    Max Stock
+                                </div>
                             </div>
                             <div class="flex-1 flex flex-col justify-between">
                                 <div>
                                     <h3 class="font-semibold text-slate-900">{{ item.title }}</h3>
-                                    <p class="text-sm text-slate-500">{{ item.size }}</p>
+                                    <p class="text-sm text-slate-500 mb-1">{{ item.size }} / {{ item.color }}</p>
+                                    <p class="text-xs text-gray-400">Stock Available: {{ item.stock }}</p>
                                     <p class="font-medium text-slate-900 mt-1">{{ formatRupiah(item.price) }}</p>
                                 </div>
                                 <button @click="removeItem(index)"
@@ -120,35 +88,47 @@ const removeItem = (index) => {
                             </div>
                             <div class="flex items-center self-start sm:self-center mt-2 sm:mt-0">
                                 <button @click="decreaseQty(index)"
-                                    class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-l hover:bg-gray-50 text-gray-600">-</button>
+                                    class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-l hover:bg-gray-50 text-gray-600 transition disabled:opacity-50"
+                                    :disabled="item.quantity <= 1">
+                                    -
+                                </button>
                                 <input type="text" readonly :value="item.quantity"
-                                    class="w-10 h-8 border-t border-b border-gray-300 text-center text-sm focus:outline-none text-slate-700">
-                                <button @click="increaseQty(index)"
-                                    class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-r hover:bg-gray-50 text-gray-600">+</button>
+                                    class="w-10 h-8 border-t border-b border-gray-300 text-center text-sm focus:outline-none text-slate-700 bg-white">
+                                <button @click="increaseQty(index, item.title)"
+                                    class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-r hover:bg-gray-50 text-gray-600 transition disabled:opacity-50 disabled:bg-gray-100"
+                                    :disabled="item.quantity >= item.stock">
+                                    +
+                                </button>
                             </div>
                         </div>
                     </div>
-                    <div v-if="cartItems.length === 0" class="flex flex-col justify-center items-center text-center py-12 text-slate-500">
-                        <img src="@/assets/images/cart2.png" alt="cart" class="w-32 mb-6">
-                        <div class="max-w-60">
-                            <p class="text-xl font-bold mb-2">Your cart is empty.</p>
-                            <p>Find your favorite items and add to cart before check out.</p>
-                            <router-link to="/" class="w-full inline-block"><base-button class="w-full mt-4 bg-teal-700 text-white hover:bg-teal-800 transition">Find Products</base-button></router-link>
-                        </div>
+                    <div v-else class="flex flex-col justify-center items-center text-center py-12 text-slate-500">
+                        <img src="@/assets/images/cart2.png" alt="cart" class="w-32 mb-6 opacity-60">
+                        <p class="text-xl font-bold mb-2">Your cart is empty.</p>
+                        <p class="text-sm">Find your favorite items and add to cart before check out.</p>
+                        <router-link to="/products" class="mt-4 inline-block">
+                            <BaseButton class="bg-teal-700 text-white px-6 py-2 rounded-lg">Find Products</BaseButton>
+                        </router-link>
                     </div>
                 </div>
-                <div class="lg:w-1/3">
+                <div class="lg:w-1/3" v-if="cartItems.length > 0">
                     <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm sticky top-24">
-                        <div class="flex justify-between items-center mb-1">
-                            <h2 class="text-base font-semibold text-slate-900">Order Summary</h2>
-                            <span class="text-base font-semibold text-slate-900">{{ formatRupiah(subtotal) }}</span>
+                        <h2 class="font-semibold text-slate-900 mb-4">Order Summary</h2>
+                        <div class="flex justify-between mb-2 text-sm">
+                            <span class="text-slate-500">Subtotal</span>
+                            <span class="font-medium text-slate-900">{{ formatRupiah(cartSubtotal) }}</span>
                         </div>
-                        <div class="flex justify-between text-xs text-slate-500 mb-6">
-                            <span>{{ totalItems }} Items</span>
-                            <span>Not include shipping fee</span>
+                        <div class="flex justify-between mb-2 text-sm">
+                            <span class="text-slate-500">Shipping</span>
+                            <span class="font-medium text-slate-900">{{ formatRupiah(cartShipping) }}</span>
+                        </div>
+                        <div class="border-t my-4"></div>
+                        <div class="flex justify-between font-bold text-slate-900 mb-6 text-lg">
+                            <span>Total</span>
+                            <span class="text-teal-700">{{ formatRupiah(cartGrandTotal) }}</span>
                         </div>
                         <BaseButton
-                            class="w-full bg-teal-700 text-white hover:bg-teal-800 py-3 rounded-lg font-medium transition shadow-sm">
+                            class="w-full bg-teal-700 text-white py-3 rounded-lg font-medium hover:bg-teal-800 transition shadow-lg">
                             Checkout ({{ totalItems }})
                         </BaseButton>
                     </div>

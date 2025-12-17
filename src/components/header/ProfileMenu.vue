@@ -32,7 +32,7 @@ const handleLogout = () => {
     router.push('/');
 };
 
-const cartCount = ref(1);
+const cartCount = computed(() => store.getters['cart/getCartCount']);
 const wishlistCount = ref(1);
 </script>
 
@@ -98,25 +98,21 @@ const wishlistCount = ref(1);
 
     <base-modal :isOpen="showLogoutModal" @close="showLogoutModal = false">
         <div class="w-full flex flex-col items-center justify-center px-4 py-2 text-center">
-            
             <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4 text-red-600">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25V9m7.5 0A2.25 2.25 0 0118 11.25v6.75A2.25 2.25 0 0115.75 20.25H8.25A2.25 2.25 0 016 18V11.25A2.25 2.25 0 018.25 9m7.5 0v-.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21" />
                 </svg>
             </div>
-
             <h1 class="text-xl font-bold text-slate-900 mb-2">Are you sure to <span class="text-red-600">Logout</span>?</h1>
             <p class="text-slate-500 mb-6 text-sm">
                 You will be logged out of your account. You need to login again to access your profile.
             </p>
-            
             <div class="flex gap-3 w-full">
                 <base-button 
                     @click="showLogoutModal = false"
                     class="flex-1 bg-gray-100 text-slate-700 hover:bg-gray-200 py-2.5 rounded-lg font-medium transition">
                     Cancel
-                </base-button>
-                
+                </base-button>        
                 <base-button 
                     @click="handleLogout"
                     class="flex-1 bg-red-600 text-white hover:bg-red-700 py-2.5 rounded-lg font-medium transition shadow-sm">
