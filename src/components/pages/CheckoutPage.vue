@@ -2,8 +2,8 @@
 import { reactive, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import BaseButton from '../ui/BaseButton.vue'; // Pastikan path sesuai
-import BaseModal from '../ui/BaseModal.vue'; // Pastikan path sesuai
+import BaseButton from '../ui/BaseButton.vue';
+import BaseModal from '../ui/BaseModal.vue';
 
 const store = useStore();
 const router = useRouter();
@@ -35,13 +35,27 @@ const formatRupiah = (number) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
 };
 
-const handleSubmit = () => {
-    if (!form.fullname || !form.address || !form.phone) {
-        alert("Please complete the shipping details.");
+const handleSubmit = async () => {
+    if (!form.fullname || !form.address || !form.phone || !form.city || !form.postalCode) {
+        alert("Please complete all shipping details.");
         return;
     }
-    store.dispatch('cart/confirmCheckout');
-    showSuccessModal.value = true;
+    try {
+        await store.dispatch('cart/confirmCheckout', {
+            fullname: form.fullname,
+            phone: form.phone,
+            address: form.address,
+            city: form.city,
+            postalCode: form.postalCode,
+            paymentMethod: form.paymentMethod
+        });
+        showSuccessModal.value = true;
+    } catch (error) {
+        console.error(error);
+        alert("Checkout Failed: " + error.message);
+    } finally {
+        isProcessing.value = false;
+    }
 };
 
 const finishOrder = () => {
@@ -155,7 +169,7 @@ const finishOrder = () => {
                                 <div class="flex-1">
                                     <p class="text-sm font-medium text-slate-800 line-clamp-1">{{ item.title }}</p>
                                     <p class="text-xs text-slate-500">{{ item.quantity }} x {{ formatRupiah(item.price)
-                                    }}</p>
+                                        }}</p>
                                 </div>
                             </div>
                         </div>

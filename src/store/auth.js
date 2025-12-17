@@ -56,6 +56,7 @@ export default {
                     fullname: payload.fullname,
                     username: payload.username,
                     email: payload.email,
+                    password: payload.password,
                     imageLink: payload.imageLink || `https://ui-avatars.com/api/?name=${payload.fullname}`,
                 };
                 Cookies.set("UID", newUserData.userId);
@@ -89,13 +90,10 @@ export default {
                     password: payload.password,
                     returnSecureToken: true
                 });
-
                 commit("setToken", {
                     idToken: data.idToken,
                     expiresIn: new Date().getTime() + Number.parseInt(data.expiresIn) * 1000
                 });
-
-                // Ambil data user berdasarkan ID
                 await dispatch("getUser", data.localId);
 
             } catch (error) {
@@ -107,7 +105,6 @@ export default {
         async getUser({ commit, state }, payload) {
             try {
                 const { data } = await axios.get(`${DB_URL}/users/${payload}.json?auth=${state.token}`);
-
                 if (data) {
                     Cookies.set("UID", payload);
                     commit("setUserLogin", { userData: data, loginStatus: true });
@@ -144,6 +141,38 @@ export default {
             } catch (err) {
                 console.log(err);
                 throw err;
+            }
+        },
+        async changePassword({ commit, state }, payload) {
+            const { email, oldPassword, newPassword } = payload;
+
+            const verifyURL = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`;
+            const updateURL = `https://identitytoolkit.googleapis.com/v1/accounts:update?key=${API_KEY}`;
+
+            try {
+                const { data: verifyData } = await axios.post(verifyURL, {
+                    email: email,
+                    password: oldPassword,
+                    returnSecureToken: true
+                });
+
+                const freshToken = verifyData.idToken;
+                const userId = verifyData.localId;
+
+                await axios.post(updateURL, {
+                    idToken: freshToken,
+                    password: newPassword,
+                    returnSecureToken: true
+                });
+                await axios.patch(`${DB_URL}/users/${userId}.json?auth=${freshToken}`, {
+                    password: newPassword
+                });
+                commit("setToken", {
+                    idToken: freshToken,
+                    expiresIn: new Date().getTime() + Number.parseInt(verifyData.expiresIn) * 1000
+                });
+            } catch (error) {
+                throw error;
             }
         },
     }
