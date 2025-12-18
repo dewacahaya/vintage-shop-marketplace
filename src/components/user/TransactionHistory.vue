@@ -61,7 +61,7 @@ onMounted(() => {
                 </svg>
             </div>
             <h3 class="text-lg font-bold text-slate-900 mb-2">No orders yet</h3>
-            <p class="text-slate-500 max-w-xs mb-6 text-sm">Looks like you haven't made your choice yet.</p>
+            <p class="text-slate-500 max-w-xs mb-6 text-sm">When you buy an item, your order about it will appear here.</p>
             <router-link to="/products">
                 <BaseButton
                     class="bg-teal-700 text-white px-6 py-2.5 rounded-lg hover:bg-teal-800 transition shadow-sm font-medium">
