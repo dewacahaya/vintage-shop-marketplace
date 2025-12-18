@@ -85,7 +85,7 @@ const staticInfo = {
                 <div class="rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
                     <div class="aspect-square w-full">
                         <img :src="product.image" :alt="product.name"
-                            class="w-full h-full object-center object-contain">
+                            class="w-full h-full object-center object-cover">
                     </div>
                 </div>
                 <div class="flex flex-col">
