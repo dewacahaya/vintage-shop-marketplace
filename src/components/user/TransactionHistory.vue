@@ -10,12 +10,10 @@ const isLoading = ref(false);
 
 const DB_URL = "https://vintage-shop-fad7f-default-rtdb.asia-southeast1.firebasedatabase.app";
 
-// Helper Format Rupiah
 const formatRupiah = (number) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
 };
 
-// Fetch Orders
 const fetchOrders = async () => {
     isLoading.value = true;
     try {
@@ -23,18 +21,13 @@ const fetchOrders = async () => {
         const userId = store.state.auth.userLogin.userId;
 
         if (!userId || !token) return;
-
-        // Ambil data dari node orders user terkait
         const { data } = await axios.get(`${DB_URL}/users/${userId}/orders.json?auth=${token}`);
 
         if (data) {
-            // Transform Object Firebase ke Array
             const formattedOrders = Object.keys(data).map(key => ({
-                id: key, // ID unik dari Firebase
+                id: key,
                 ...data[key]
             }));
-
-            // Urutkan dari yang terbaru (reverse)
             orders.value = formattedOrders.reverse();
         } else {
             orders.value = [];
@@ -55,11 +48,9 @@ onMounted(() => {
 <template>
     <div>
         <h2 class="text-xl font-bold text-slate-900 mb-6">My Order</h2>
-
         <div v-if="isLoading" class="flex justify-center py-10">
             <p class="text-slate-500">Loading your transactions...</p>
         </div>
-
         <div v-else-if="orders.length === 0"
             class="flex flex-col items-center justify-center py-12 bg-white border border-slate-200 rounded-xl shadow-sm text-center">
             <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-4">
@@ -78,11 +69,9 @@ onMounted(() => {
                 </BaseButton>
             </router-link>
         </div>
-
         <div v-else class="space-y-6">
             <div v-for="trx in orders" :key="trx.id"
                 class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:border-teal-100 transition duration-300">
-
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm mb-4 border-b border-gray-100 pb-4">
                     <div class="flex items-center gap-2 font-semibold text-slate-800">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -93,21 +82,17 @@ onMounted(() => {
                         </svg>
                         Shopping
                     </div>
-
                     <span class="text-slate-500">{{ trx.date }}</span>
-
                     <span class="px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">
                         {{ trx.status || 'Done' }}
                     </span>
 
                     <span class="text-slate-400 font-mono text-xs uppercase">{{ trx.id }}</span>
                 </div>
-
                 <div v-if="trx.items && trx.items.length > 0" class="flex flex-col sm:flex-row gap-6">
                     <div class="w-20 h-20 shrink-0 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
                         <img :src="trx.items[0].image" :alt="trx.items[0].title" class="w-full h-full object-cover">
                     </div>
-
                     <div class="flex-1">
                         <h3 class="font-bold text-slate-800 text-base mb-1 line-clamp-2">
                             {{ trx.items[0].title }}
@@ -123,7 +108,6 @@ onMounted(() => {
                             + {{ trx.items.length - 1 }} more products
                         </div>
                     </div>
-
                     <div
                         class="flex flex-row sm:flex-col justify-between items-end sm:border-l sm:border-gray-100 sm:pl-6 min-w-35">
                         <div class="text-right mb-0 sm:mb-auto">
@@ -132,7 +116,6 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
-
                 <div class="flex justify-end mt-6 pt-4 border-t border-gray-50">
                     <router-link :to="`/product/${trx.items[0].id}`">
                         <BaseButton
@@ -141,7 +124,6 @@ onMounted(() => {
                         </BaseButton>
                     </router-link>
                 </div>
-
             </div>
         </div>
     </div>

@@ -88,37 +88,27 @@ export default {
         },
         async confirmCheckout({ commit, state, rootState }, payload) {
             try {
-                // 1. Ambil Token & User ID (Cek State dulu, kalau kosong cek Cookies)
                 const token = rootState.auth.token || Cookies.get('jwt');
                 const userId = rootState.auth.userLogin.userId || Cookies.get('UID');
-
                 if (!token || !userId) {
                     throw new Error("User not authenticated. Please login again.");
                 }
-
-                // 2. Siapkan Data Order
                 const orderData = {
                     date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
                     status: 'Done',
                     totalPrice: state.cartItems.reduce((acc, item) => acc + (Number(item.price) * item.quantity) + (Number(item.shipping) * item.quantity), 0),
                     items: state.cartItems,
-                    shippingDetails: payload || {} // Data form dikirim lewat payload
+                    shippingDetails: payload || {}
                 };
 
-                // 3. Debugging (Cek console browser)
                 console.log("Sending Order to:", `${DB_URL}/users/${userId}/orders.json`);
                 console.log("Data:", orderData);
-
-                // 4. POST ke Firebase
                 await axios.post(`${DB_URL}/users/${userId}/orders.json?auth=${token}`, orderData);
-
-                // 5. Sukses -> Bersihkan Cart
                 commit('clearCart');
                 return true;
-
             } catch (error) {
                 console.error("Checkout Error:", error);
-                throw error; // Lempar error agar bisa ditangkap di Component
+                throw error;
             }
         },
     }

@@ -33,7 +33,7 @@ const handleLogout = () => {
 };
 
 const cartCount = computed(() => store.getters['cart/getCartCount']);
-const wishlistCount = ref(1);
+const wishlistCount = computed(() => store.getters['wishlist/getWishlistCount']);
 </script>
 
 <template>
@@ -83,7 +83,7 @@ const wishlistCount = ref(1);
                     class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                     My Profile
                 </router-link>
-                <router-link to="/user/orders" @click="showDropdown = false"
+                <router-link to="/user/transaction" @click="showDropdown = false"
                     class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                     My Orders
                 </router-link>
