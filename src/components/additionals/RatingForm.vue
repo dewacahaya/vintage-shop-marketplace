@@ -31,7 +31,6 @@ const submit = () => {
         alert("Please select a star rating.");
         return;
     }
-    // Kirim data ke parent
     emit('submit-rating', {
         rating: rating.value,
         review: review.value
@@ -46,7 +45,6 @@ const submit = () => {
                 <h2 class="text-xl font-bold text-slate-900">Give Rating</h2>
                 <p class="text-slate-500 text-sm">How was your experience with this product?</p>
             </div>
-
             <div v-if="item" class="flex items-center gap-4 bg-gray-50 p-3 rounded-lg mb-6 border border-gray-100">
                 <img :src="item.image" class="w-14 h-14 rounded-md object-cover border border-gray-200">
                 <div class="text-left">
@@ -54,7 +52,6 @@ const submit = () => {
                     <p class="text-xs text-slate-500">{{ item.size }} / {{ item.color }}</p>
                 </div>
             </div>
-
             <div class="flex justify-center gap-2 mb-6">
                 <button v-for="star in 5" :key="star" type="button" @click="setRating(star)"
                     @mouseenter="hoverRating = star" @mouseleave="hoverRating = 0"
@@ -68,14 +65,12 @@ const submit = () => {
                     </svg>
                 </button>
             </div>
-
             <div class="mb-6">
                 <label class="block text-sm font-medium text-slate-700 mb-2">Write a review (optional)</label>
                 <textarea v-model="review" rows="3"
                     class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-teal-500 outline-none resize-none"
                     placeholder="Tell us what you liked or disliked..."></textarea>
             </div>
-
             <div class="flex gap-3">
                 <BaseButton @click="$emit('close')"
                     class="w-full bg-white border border-gray-300 text-slate-600 hover:bg-gray-50 py-2.5 rounded-lg font-medium">

@@ -8,12 +8,18 @@ export default {
     state() {
         return {
             products: [],
-            productDetail: {}
+            productDetail: {},
+            productReviews: [],
+            averageRating: 0,
+            totalReviews: 0
         }
     },
     getters: {
         getProducts: (state) => state.products,
-        getProductDetail: (state) => state.productDetail
+        getProductDetail: (state) => state.productDetail,
+        getProductReviews: (state) => state.productReviews,
+        getAverageRating: (state) => state.averageRating,
+        getTotalReviews: (state) => state.totalReviews,
     },
     mutations: {
         setProductData(state, payload) {
@@ -21,6 +27,11 @@ export default {
         },
         setProductDetail(state, payload) {
             state.productDetail = payload;
+        },
+        setReviews(state, { reviews, avg, total }) {
+            state.productReviews = reviews;
+            state.averageRating = avg;
+            state.totalReviews = total;
         }
     },
     actions: {
@@ -42,9 +53,50 @@ export default {
         async fetchProductDetail({ commit }, payload) {
             try {
                 const { data } = await axios.get(`${DB_URL}/products/${payload}.json`);
-                commit("setProductDetail", {id: payload, ...data})
+                commit("setProductDetail", { id: payload, ...data })
             } catch (error) {
                 console.log(error)
+            }
+        },
+        async fetchProductReviews({ commit, rootState }, productId) {
+            try {
+                const token = rootState.auth.token;
+                const { data: users } = await axios.get(`${DB_URL}/users.json?auth=${token}`);
+                if (!users) {
+                    commit("setReviews", { reviews: [], avg: 0, total: 0 });
+                    return;
+                }
+                let allReviews = [];
+                let totalScore = 0;
+                Object.values(users).forEach(user => {
+                    if (user.orders) {
+                        Object.values(user.orders).forEach(order => {
+                            if (order.items) {
+                                order.items.forEach(item => {
+                                    if (item.id === productId && item.isRated && item.userRating) {
+                                        allReviews.push({
+                                            username: user.username || "Anonymous",
+                                            avatar: user.imageLink || `https://ui-avatars.com/api/?name=${user.username}`,
+                                            score: item.userRating.score,
+                                            comment: item.userRating.comment,
+                                            date: item.userRating.createdAt
+                                        });
+                                        totalScore += item.userRating.score;
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+                const count = allReviews.length;
+                const avg = count > 0 ? (totalScore / count).toFixed(1) : 0; // 1 desimal (e.g. 4.5)
+                commit("setReviews", {
+                    reviews: allReviews,
+                    avg: avg,
+                    total: count
+                });
+            } catch (error) {
+                console.error("Error fetching reviews:", error);
             }
         }
     }

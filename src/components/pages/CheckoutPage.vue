@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, computed, onMounted, ref, watch } from 'vue';
+import { reactive, computed, onMounted, ref, watch, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import BaseButton from '../ui/BaseButton.vue';
@@ -9,9 +9,9 @@ const store = useStore();
 const router = useRouter();
 
 const userData = computed(() => store.state.auth.userLogin);
-const cartItems = computed(() => store.getters['cart/getCartItems']);
-const cartSubtotal = computed(() => store.getters['cart/getCartSubtotal']);
-const productShippingCost = computed(() => store.getters['cart/getCartShipping']);
+const cartItems = computed(() => store.getters['cart/getCheckoutItems']);
+const cartSubtotal = computed(() => store.getters['cart/getCheckoutSubtotal']);
+const productShippingCost = computed(() => store.getters['cart/getCheckoutShipping']);
 
 const deliveryOptions = [
     {
@@ -66,6 +66,10 @@ onMounted(() => {
     if (cartItems.value.length === 0) {
         router.push('/products');
     }
+});
+
+onUnmounted(() => {
+    store.dispatch('cart/clearCheckoutItem');
 });
 
 watch(userData, (val) => {
@@ -258,7 +262,7 @@ const finishOrder = () => {
                                 <div class="flex-1">
                                     <p class="text-sm font-medium text-slate-800 line-clamp-1">{{ item.title }}</p>
                                     <p class="text-xs text-slate-500">{{ item.quantity }} x {{ formatRupiah(item.price)
-                                        }}</p>
+                                    }}</p>
                                 </div>
                             </div>
                         </div>

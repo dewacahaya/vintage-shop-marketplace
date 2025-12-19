@@ -7,7 +7,8 @@ export default {
     namespaced: true,
     state() {
         return {
-            cartItems: []
+            cartItems: [],
+            checkoutItems: null
         }
     },
     getters: {
@@ -26,6 +27,20 @@ export default {
         getCartGrandTotal: (state, getters) => {
             return getters.getCartSubtotal + getters.getCartShipping;
         },
+        getCheckoutItems: (state) => {
+            if (state.checkoutItem) {
+                return [state.checkoutItem];
+            }
+            return state.cartItems;
+        },
+        getCheckoutSubtotal: (state, getters) => {
+            const items = getters.getCheckoutItems;
+            return items.reduce((acc, item) => acc + (Number(item.price) * item.quantity), 0);
+        },
+        getCheckoutShipping: (state, getters) => {
+            const items = getters.getCheckoutItems;
+            return items.reduce((acc, item) => acc + (Number(item.shipping) * item.quantity), 0);
+        }
     },
     mutations: {
         addItems(state, product) {
@@ -62,6 +77,21 @@ export default {
         },
         clearCart(state) {
             state.cartItems = [];
+        },
+        setCheckoutItem(state, product) {
+            state.checkoutItem = {
+                id: product.id,
+                title: product.name,
+                price: product.price,
+                image: product.image,
+                size: product.size,
+                stock: product.stock,
+                shipping: product.shipping,
+                quantity: 1
+            };
+        },
+        clearCheckoutItem(state) {
+            state.checkoutItem = null;
         }
     },
     actions: {
@@ -111,5 +141,11 @@ export default {
                 throw error;
             }
         },
+        buyNow({ commit }, product) {
+            commit('setCheckoutItem', product);
+        },
+        clearCheckoutItem({ commit }) {
+            commit('clearCheckoutItem');
+        }
     }
 }

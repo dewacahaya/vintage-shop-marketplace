@@ -1,12 +1,13 @@
 <script setup>
 import { onMounted, computed, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import BaseButton from '../ui/BaseButton.vue';
 import ProductCard from '../ui/ProductCard.vue';
 import BaseModal from '../ui/BaseModal.vue';
 
 const route = useRoute();
+const router = useRouter();
 const store = useStore();
 const isLoading = ref(false);
 const showSuccessModal = ref(false);
@@ -16,12 +17,18 @@ const allProducts = computed(() => store.getters['product/getProducts']);
 const isLiked = computed(() => {
     return store.getters['wishlist/isInWishlist'](String(route.params.id));
 });
+const reviews = computed(() => store.getters['product/getProductReviews']);
+const averageRating = computed(() => store.getters['product/getAverageRating']);
+const totalReviews = computed(() => store.getters['product/getTotalReviews']);
 
 const fetchData = async () => {
     isLoading.value = true;
     try {
         const productId = route.params.id;
-        await store.dispatch('product/fetchProductDetail', productId);
+        await Promise.all([
+            store.dispatch('product/fetchProductDetail', productId),
+            store.dispatch('product/fetchProductReviews', productId)
+        ]);
         if (allProducts.value.length === 0) {
             await store.dispatch('product/fetchProductData');
         }
@@ -45,6 +52,12 @@ const formattedPrice = computed(() => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.value?.price || 0);
 });
 
+const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+};
+
 const otherProducts = computed(() => {
     const currentId = route.params.id;
     return allProducts.value
@@ -57,6 +70,11 @@ const addToCart = () => {
     showSuccessModal.value = true;
 };
 
+const buyNow = () => {
+    store.dispatch('cart/buyNow', product.value);    
+    router.push('/cart/checkout');
+};
+
 const handleWishlistClick = () => {
     const productId = String(route.params.id);
     store.dispatch('wishlist/toggleWishlist', productId);
@@ -66,12 +84,6 @@ const staticInfo = {
     condition: 'Very Good',
     location: 'Denpasar, Bali',
     uploaded: '5 hours ago',
-    seller: {
-        name: 'Vintage Hunter Bali',
-        avatar: 'https://ui-avatars.com/api/?name=Vintage+Hunter&background=random',
-        rating: 4.8,
-        reviewCount: 124
-    }
 };
 </script>
 
@@ -83,9 +95,8 @@ const staticInfo = {
         <main v-else-if="product && product.name" class="grow container mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <div class="rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
-                    <div class="aspect-square w-full">
-                        <img :src="product.image" :alt="product.name"
-                            class="w-full h-full object-center object-cover">
+                    <div class=" w-full">
+                        <img :src="product.image" :alt="product.name" class="w-full h-full object-center object-cover">
                     </div>
                 </div>
                 <div class="flex flex-col">
@@ -146,7 +157,7 @@ const staticInfo = {
                         </div>
                     </div>
                     <div class="flex flex-col gap-3 mb-8">
-                        <BaseButton
+                        <BaseButton @click="buyNow"
                             class="w-full py-3 justify-center font-semibold text-base bg-[#178A8D] cursor-pointer text-white hover:bg-teal-800 transition shadow-md">
                             Buy Now
                         </BaseButton>
@@ -155,24 +166,35 @@ const staticInfo = {
                             Add to Cart
                         </BaseButton>
                     </div>
-                    <div
-                        class="border border-slate-200 rounded-xl p-4 flex items-center shadow-sm hover:border-teal-200 transition bg-white">
-                        <img :src="staticInfo.seller.avatar" alt="Seller Avatar"
-                            class="w-12 h-12 rounded-full mr-4 bg-gray-200">
-                        <div>
-                            <h4 class="font-semibold text-slate-900 text-sm">{{ staticInfo.seller.name }}</h4>
-                            <div class="flex items-center mt-1">
-                                <div class="flex text-yellow-400 mr-2">
-                                    <svg v-for="i in 5" :key="i" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                        fill="currentColor" class="w-4 h-4">
-                                        <path fill-rule="evenodd"
-                                            d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.11c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.007z"
-                                            clip-rule="evenodd" />
-                                    </svg>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-4">Reviews ({{ totalReviews }})</h3>
+                        <div v-if="reviews.length > 0" class="space-y-4 max-h-56 overflow-y-auto">
+                            <div v-for="(review, index) in reviews" :key="index"
+                                class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex items-center gap-3">
+                                        <img :src="review.avatar" class="w-8 h-8 rounded-full">
+                                        <div>
+                                            <p class="text-sm font-semibold text-slate-900">{{ review.username }}</p>
+                                            <p class="text-xs text-slate-400">{{ formatDate(review.date) }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex text-yellow-400">
+                                        <svg v-for="i in 5" :key="i" xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3"
+                                            :class="i <= review.score ? 'text-yellow-400' : 'text-gray-300'">
+                                            <path fill-rule="evenodd"
+                                                d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.11c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.007z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
                                 </div>
-                                <span class="text-xs text-slate-500">({{ staticInfo.seller.reviewCount }}
-                                    reviews)</span>
+                                <p class="text-sm text-slate-600 italic">"{{ review.comment || 'No comment provided.'
+                                    }}"</p>
                             </div>
+                        </div>
+                        <div v-else class="text-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                            <p class="text-slate-500 text-sm">No reviews yet for this product.</p>
                         </div>
                     </div>
                 </div>
