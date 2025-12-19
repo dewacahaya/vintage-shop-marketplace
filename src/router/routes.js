@@ -11,6 +11,7 @@ import UserMenu from '@/components/user/UserMenu.vue'
 import CheckoutPage from '@/components/pages/CheckoutPage.vue';
 import UserPage from '@/components/pages/UserPage.vue';
 import WishlistPage from '@/components/pages/WishlistPage.vue';
+import TransactionDetail from '@/components/user/TransactionDetail.vue';
 
 const checkAuth = () => {
   const jwtCookie = Cookies.get("jwt");
@@ -42,6 +43,7 @@ export const routes = createRouter({
     { path: '/cart', name: 'cart', component: CartPage, beforeEnter: (to, from, next) => { checkAuth() ? next() : next({ name: "login" }); } },
     { path: '/wishlist', name: 'wishlist', component: WishlistPage, beforeEnter: (to, from, next) => { checkAuth() ? next() : next({ name: "login" }); } },
     { path: '/user/:component', name: 'user-menu', component: UserPage, props: true, beforeEnter: (to, from, next) => { checkAuth() ? next() : next({ name: "login" }); } },
+    { path: '/user/transaction/:id', name: 'transaction-detail', component: TransactionDetail, props: true, beforeEnter: (to, from, next) => { checkAuth() ? next() : next({ name: "login" }); } },
     { path: '/cart/checkout', name: 'checkout', component: CheckoutPage, props: true, beforeEnter: (to, from, next) => { checkAuth() ? next() : next({ name: "login" }); } },
   ],
   scrollBehavior(to, from, savedPosition) {

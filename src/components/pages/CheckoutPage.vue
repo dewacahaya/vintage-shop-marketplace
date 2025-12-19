@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, computed, onMounted, ref } from 'vue';
+import { reactive, computed, onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import BaseButton from '../ui/BaseButton.vue';
@@ -8,6 +8,7 @@ import BaseModal from '../ui/BaseModal.vue';
 const store = useStore();
 const router = useRouter();
 
+const userData = computed(() => store.state.auth.userLogin);
 const cartItems = computed(() => store.getters['cart/getCartItems']);
 const cartSubtotal = computed(() => store.getters['cart/getCartSubtotal']);
 const productShippingCost = computed(() => store.getters['cart/getCartShipping']);
@@ -66,6 +67,10 @@ onMounted(() => {
         router.push('/products');
     }
 });
+
+watch(userData, (val) => {
+    form.fullname = val?.fullname || '';
+}, { immediate: true });
 
 const formatRupiah = (number) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
@@ -128,7 +133,7 @@ const finishOrder = () => {
                                 <label class="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
                                 <input v-model="form.fullname" type="text"
                                     class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-teal-500 outline-none transition"
-                                    placeholder="Enter your name">
+                                    placeholder="Full name" disabled>
                             </div>
                             <div class="col-span-2 md:col-span-1">
                                 <label class="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>

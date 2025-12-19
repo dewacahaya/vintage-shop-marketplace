@@ -4,6 +4,7 @@ import auth from "./auth";
 import product from "./product";
 import cart from "./cart";
 import wishlist from "./wishlist";
+import transaction from "./transaction";
 
 export const store = createStore({
     modules: {
@@ -11,6 +12,7 @@ export const store = createStore({
         auth,
         product,
         cart,
-        wishlist
+        wishlist,
+        transaction
     }
 })

@@ -88,7 +88,7 @@ const goToCheckout = () => {
                                     <p class="font-medium text-slate-900 mt-1">{{ formatRupiah(item.price) }}</p>
                                 </div>
                                 <button @click="removeItem(index)"
-                                    class="text-red-500 text-xs font-medium hover:text-red-700 w-max mt-2 sm:mt-0 transition">
+                                    class="text-red-500 text-xs font-medium hover:text-red-700 w-max mt-2 sm:mt-0 transition cursor-pointer">
                                     Remove
                                 </button>
                             </div>
@@ -134,7 +134,7 @@ const goToCheckout = () => {
                             <span class="text-teal-700">{{ formatRupiah(cartGrandTotal) }}</span>
                         </div>
                         <BaseButton @click="goToCheckout"
-                            class="w-full bg-teal-700 text-white py-3 rounded-lg font-medium hover:bg-teal-800 transition shadow-lg">
+                            class="w-full bg-teal-700 text-white py-3 rounded-lg font-medium hover:bg-teal-800 transition shadow-lg cursor-pointer">
                             Checkout ({{ totalItems }})
                         </BaseButton>
                     </div>

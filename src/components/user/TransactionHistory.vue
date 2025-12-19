@@ -1,47 +1,24 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 import { useStore } from 'vuex';
-import axios from 'axios';
 import BaseButton from '../ui/BaseButton.vue';
 
 const store = useStore();
-const orders = ref([]);
 const isLoading = ref(false);
 
-const DB_URL = "https://vintage-shop-fad7f-default-rtdb.asia-southeast1.firebasedatabase.app";
+const orders = computed(() => store.getters['transaction/getTransactions'] || []);
 
 const formatRupiah = (number) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
 };
 
-const fetchOrders = async () => {
+onMounted(async () => {
     isLoading.value = true;
     try {
-        const token = store.state.auth.token;
-        const userId = store.state.auth.userLogin.userId;
-
-        if (!userId || !token) return;
-        const { data } = await axios.get(`${DB_URL}/users/${userId}/orders.json?auth=${token}`);
-
-        if (data) {
-            const formattedOrders = Object.keys(data).map(key => ({
-                id: key,
-                ...data[key]
-            }));
-            orders.value = formattedOrders.reverse();
-        } else {
-            orders.value = [];
-        }
-
-    } catch (error) {
-        console.error("Failed to fetch orders:", error);
+        await store.dispatch('transaction/fetchTransactions');
     } finally {
         isLoading.value = false;
     }
-};
-
-onMounted(() => {
-    fetchOrders();
 });
 </script>
 
@@ -61,7 +38,8 @@ onMounted(() => {
                 </svg>
             </div>
             <h3 class="text-lg font-bold text-slate-900 mb-2">No orders yet</h3>
-            <p class="text-slate-500 max-w-xs mb-6 text-sm">When you buy an item, your order about it will appear here.</p>
+            <p class="text-slate-500 max-w-xs mb-6 text-sm">When you buy an item, your order about it will appear here.
+            </p>
             <router-link to="/products">
                 <BaseButton
                     class="bg-teal-700 text-white px-6 py-2.5 rounded-lg hover:bg-teal-800 transition shadow-sm font-medium">
@@ -117,10 +95,10 @@ onMounted(() => {
                     </div>
                 </div>
                 <div class="flex justify-end mt-6 pt-4 border-t border-gray-50">
-                    <router-link :to="`/product/${trx.items[0].id}`">
+                    <router-link :to="`/user/transaction/${trx.id}`">
                         <BaseButton
-                            class="bg-[#178A8D] text-white px-6 py-2 rounded-lg font-medium hover:bg-teal-700 transition shadow-sm text-sm">
-                            Buy Again
+                            class="bg-white border border-teal-600 text-teal-700 px-6 py-2 rounded-lg font-medium hover:bg-teal-50 transition shadow-sm text-sm">
+                            View Details
                         </BaseButton>
                     </router-link>
                 </div>
