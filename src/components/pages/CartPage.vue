@@ -48,6 +48,14 @@ const removeItem = (index) => {
 const goToCheckout = () => {
     router.push({ name: 'checkout' });
 }
+
+// const checkoutDisabled = computed(() => {
+//     if (cartItems.value.length === 0) {
+//         return true;
+//     } else {
+//         return false;
+//     }
+// });
 </script>
 
 <template>
@@ -117,7 +125,7 @@ const goToCheckout = () => {
                         </router-link>
                     </div>
                 </div>
-                <div class="lg:w-1/3" v-if="cartItems.length > 0">
+                <div class="lg:w-1/3">
                     <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm sticky top-24">
                         <h2 class="font-semibold text-slate-900 mb-4">Order Summary</h2>
                         <div class="flex justify-between mb-2 text-sm">
@@ -133,8 +141,10 @@ const goToCheckout = () => {
                             <span>Total</span>
                             <span class="text-teal-700">{{ formatRupiah(cartGrandTotal) }}</span>
                         </div>
-                        <BaseButton @click="goToCheckout"
-                            class="w-full bg-teal-700 text-white py-3 rounded-lg font-medium hover:bg-teal-800 transition shadow-lg cursor-pointer">
+                        <BaseButton @click="goToCheckout" :disabled="totalItems === 0"
+                            class="w-full py-3 rounded-lg font-medium transition duration-200" :class="totalItems > 0
+                                ? 'bg-teal-700 text-white hover:bg-teal-800 shadow-lg cursor-pointer'
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'">
                             Checkout ({{ totalItems }})
                         </BaseButton>
                     </div>

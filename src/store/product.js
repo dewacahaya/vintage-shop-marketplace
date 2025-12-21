@@ -89,7 +89,7 @@ export default {
                     }
                 });
                 const count = allReviews.length;
-                const avg = count > 0 ? (totalScore / count).toFixed(1) : 0; // 1 desimal (e.g. 4.5)
+                const avg = count > 0 ? (totalScore / count).toFixed(1) : 0;
                 commit("setReviews", {
                     reviews: allReviews,
                     avg: avg,

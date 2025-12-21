@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useStore } from 'vuex';
+import { useRoute } from 'vue-router';
 
 import SearchMenu from './SearchMenu.vue';
 import SignupMenu from './SignupMenu.vue';
@@ -8,6 +9,12 @@ import ProfileMenu from './ProfileMenu.vue';
 import BaseSelect from '../ui/BaseSelect.vue';
 
 const store = useStore();
+const route = useRoute();
+
+const showSearch = computed(() => {
+    const hideRoutes = ['login', 'signup'];
+    return !hideRoutes.includes(route.name);
+});
 
 const components = {
     'signup-menu': SignupMenu,
@@ -30,7 +37,7 @@ const menuComponent = computed(() => {
             </router-link>
         </div>
 
-        <div class="flex-1 max-w-2xl px-4 sm:px-8">
+        <div v-if="showSearch" class="flex-1 max-w-2xl px-4 sm:px-8">
             <SearchMenu />
         </div>
 

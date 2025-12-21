@@ -3,7 +3,8 @@ import { reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import BaseButton from '../../components/ui/BaseButton.vue';
-import BaseInput from '../../components/ui/BaseInput.vue'; // Import BaseInput
+import BaseInput from '../../components/ui/BaseInput.vue';
+import BaseModal from '../ui/BaseModal.vue';
 
 const store = useStore();
 const router = useRouter();
@@ -14,6 +15,8 @@ const loginData = reactive({
     password: ''
 });
 
+const showLoginError = ref(false);
+
 const handleLogin = async () => {
     isLoading.value = true;
     try {
@@ -21,7 +24,7 @@ const handleLogin = async () => {
         router.push('/');
     } catch (error) {
         console.error(error);
-        alert("Login Failed. Please check your credentials.");
+        showLoginError.value = true;
     } finally {
         isLoading.value = false;
     }
@@ -51,4 +54,14 @@ const handleLogin = async () => {
             </div>
         </div>
     </div>
+
+    <base-modal :is-open="showLoginError" @close="showLoginError = false">
+        <div class="flex flex-col items-center text-center px-4 py-2">
+            <img src="@/assets/images/error.png" alt="Error Icon" class="w-24 mb-6">
+            <h1 class="text-xl font-bold text-slate-900 mb-2">Login Failed!</h1>
+            <p class="text-slate-500 mb-8 max-w-xs mx-auto leading-relaxed text-sm">
+                Please check your email and password and try again.
+            </p>
+        </div>
+    </base-modal>
 </template>

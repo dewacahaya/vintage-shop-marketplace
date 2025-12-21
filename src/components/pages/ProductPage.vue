@@ -1,8 +1,9 @@
 <script setup>
-import { onMounted, computed } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 import { useStore } from 'vuex';
 import ProductCard from '../ui/ProductCard.vue';
 import BaseButton from '../ui/BaseButton.vue';
+import ShopByCategory from '../additionals/ShopByCategory.vue';
 
 const store = useStore();
 const allProducts = computed(() => store.getters['product/getProducts']);
@@ -18,6 +19,22 @@ const items = computed(() => {
     );
 });
 
+const activeCategories = ref([]);
+
+const pageTitle = computed(() => {
+    if (!activeCategories.value.length) return 'All Products';
+    return activeCategories.value.join(', ');
+});
+
+const filteredItems = computed(() => {
+    const source = items.value || [];
+    if (!activeCategories.value.length) return source;
+    const activeLower = activeCategories.value.map(c => c.toLowerCase());
+    return source.filter(item =>
+        item.category && activeLower.includes(item.category.toLowerCase())
+    );
+});
+
 onMounted(() => {
     store.dispatch('product/fetchProductData');
 });
@@ -29,7 +46,10 @@ const resetKeyword = () => {
 
 <template>
     <section class="max-w-7xl mx-auto my-8 px-4">
-        <h2 class="text-2xl font-semibold mb-4 text-slate-900">All Products</h2>
+        <div class="flex flex-row justify-between items-center">
+            <h2 class="text-2xl font-semibold mb-4 text-slate-900">{{ pageTitle }}</h2>
+            <ShopByCategory @change="activeCategories = $event" />
+        </div>
         <hr class="mb-6">
 
         <div v-if="items.length === 0"
@@ -47,7 +67,7 @@ const resetKeyword = () => {
         </div>
 
         <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            <ProductCard v-for="(item, i) in items" :key="item.id || i" v-bind="item" />
+            <ProductCard v-for="(item, i) in filteredItems" :key="item.id || i" v-bind="item" />
         </div>
     </section>
 </template>

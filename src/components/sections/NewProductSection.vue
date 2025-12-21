@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
 import ProductCard from '../ui/ProductCard.vue';
-import ShopByBrand from '../additionals/ShopByCategory.vue';
 
 const props = defineProps({
     items: {
@@ -23,7 +22,6 @@ const filteredItems = computed(() => {
 
 <template>
     <section class="max-w-7xl mx-auto my-12 px-4">
-        <ShopByBrand @change="activeCategories = $event" />
         <div class="flex justify-between items-center my-6">
             <h2 class="text-2xl font-semibold text-slate-900">New Products</h2>
             <router-link to="/products" class="text-teal-700 hover:text-teal-800 font-medium">See All</router-link>

@@ -12,6 +12,7 @@ const userData = computed(() => store.state.auth.userLogin);
 const cartItems = computed(() => store.getters['cart/getCheckoutItems']);
 const cartSubtotal = computed(() => store.getters['cart/getCheckoutSubtotal']);
 const productShippingCost = computed(() => store.getters['cart/getCheckoutShipping']);
+const confirmedOrderId = ref('');
 
 const deliveryOptions = [
     {
@@ -87,11 +88,12 @@ const handleSubmit = async () => {
     }
     isProcessing.value = true;
     try {
-        await store.dispatch('cart/confirmCheckout', {
+        const orderId = await store.dispatch('cart/confirmCheckout', {
             ...form,
             shippingCost: totalShippingCost.value,
             grandTotal: finalGrandTotal.value
         });
+        confirmedOrderId.value = orderId; 
         showSuccessModal.value = true;
     } catch (error) {
         console.error(error);
@@ -262,7 +264,7 @@ const finishOrder = () => {
                                 <div class="flex-1">
                                     <p class="text-sm font-medium text-slate-800 line-clamp-1">{{ item.title }}</p>
                                     <p class="text-xs text-slate-500">{{ item.quantity }} x {{ formatRupiah(item.price)
-                                    }}</p>
+                                        }}</p>
                                 </div>
                             </div>
                         </div>
@@ -309,7 +311,7 @@ const finishOrder = () => {
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
                 </div>
-                <h1 class="text-2xl font-bold text-slate-900 mb-2">Order Confirmed!</h1>
+                <h1 class="text-2xl font-bold text-slate-900 mb-2">Order {{ confirmedOrderId }} Confirmed!</h1>
                 <p class="text-slate-500 mb-8 max-w-xs mx-auto text-sm">
                     Thank you for your order, <strong>{{ form.fullname }}</strong>. We have received your order and will
                     process it immediately.

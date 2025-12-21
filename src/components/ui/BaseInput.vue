@@ -31,7 +31,7 @@ const handleInput = (event) => {
             <span v-if="required" class="text-red-500">*</span>
         </label>
         <div class="relative">
-            <input :type="inputType" :placeholder="placeholder" :value="modelValue" @input="handleInput"
+            <input :type="inputType" :placeholder="placeholder" :value="modelValue" @input="handleInput" @keyInput="$emit('keyInput', $event.target.value)"
                 class="w-full border border-gray-300 rounded-lg px-4 py-3 bg-white outline-none focus:ring-2 focus:ring-[#178A8D] focus:border-[#178A8D] transition duration-200" />
             <button v-if="props.type === 'password'" type="button"
                 class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-slate-700 cursor-pointer"

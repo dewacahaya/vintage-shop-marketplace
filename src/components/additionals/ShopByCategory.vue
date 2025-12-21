@@ -7,10 +7,8 @@ const categories = [
     'T-Shirts',
     'Shirts',
     'Shoes',
-    'Accessories',
     'Hoodies',
     'Pants',
-    'Dress'
 ]
 
 const selected = reactive({})
@@ -31,8 +29,6 @@ watch(
 
 <template>
     <div class="mb-8">
-        <h2 class="text-xl font-semibold mb-4 text-slate-900">Shop by Category</h2>
-
         <div class="flex flex-wrap gap-3">
             <BaseCheckbox v-for="category in categories" :key="category" v-model="selected[category]"
                 :label="category" />

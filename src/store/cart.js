@@ -116,26 +116,29 @@ export default {
             commit('updateQty', { index, change });
             return true;
         },
-        async confirmCheckout({ commit, state, rootState }, payload) {
+        async confirmCheckout({ commit, state, rootState, getters }, payload) {
             try {
                 const token = rootState.auth.token || Cookies.get('jwt');
                 const userId = rootState.auth.userLogin.userId || Cookies.get('UID');
+
                 if (!token || !userId) {
                     throw new Error("User not authenticated. Please login again.");
                 }
+                const itemsToCheckout = getters.getCheckoutItems;
+                const totalPrice = payload.grandTotal || (getters.getCheckoutSubtotal + getters.getCheckoutShipping);
                 const orderData = {
                     date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
                     status: 'Done',
-                    totalPrice: state.cartItems.reduce((acc, item) => acc + (Number(item.price) * item.quantity) + (Number(item.shipping) * item.quantity), 0),
-                    items: state.cartItems,
+                    totalPrice: totalPrice,
+                    items: itemsToCheckout,
                     shippingDetails: payload || {}
                 };
-
-                console.log("Sending Order to:", `${DB_URL}/users/${userId}/orders.json`);
-                console.log("Data:", orderData);
-                await axios.post(`${DB_URL}/users/${userId}/orders.json?auth=${token}`, orderData);
-                commit('clearCart');
-                return true;
+                const { data } = await axios.post(`${DB_URL}/users/${userId}/orders.json?auth=${token}`, orderData);
+                if (!state.checkoutItem) {
+                    commit('clearCart');
+                }
+                commit('clearCheckoutItem');
+                return data.name;
             } catch (error) {
                 console.error("Checkout Error:", error);
                 throw error;

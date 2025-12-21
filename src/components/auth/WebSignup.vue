@@ -21,7 +21,8 @@ const signupData = reactive({
     imageLink: ''
 });
 
-const passwordMismatch = ref(false);
+const passwordStatusDisplay = ref("none");
+const confirmPasswordStatusDisplay = ref("none");
 const imagePreview = ref(null);
 
 const handleImageUpload = (event) => {
@@ -36,12 +37,29 @@ const handleImageUpload = (event) => {
     }
 };
 
+const passwordCheck = () => {
+    if (signupData.password.length < 8) {
+        passwordStatusDisplay.value = "block"
+    } else {
+        passwordStatusDisplay.value = "none"
+    }
+    if (signupData.confirmPassword) checkConfirmPassword();
+}
+
+const checkConfirmPassword = () => {
+    if (signupData.confirmPassword !== signupData.password) {
+        confirmPasswordStatusDisplay.value = "block";
+    } else {
+        confirmPasswordStatusDisplay.value = "none";
+    }
+}
+
 const handleRegister = async () => {
-    if (signupData.password !== signupData.confirmPassword) {
-        passwordMismatch.value = true;
+    if (signupData.password !== signupData.confirmPassword || signupData.password.length < 8) {
+        passwordCheck();
+        checkConfirmPassword();
         return;
     }
-    passwordMismatch.value = false;
     isLoading.value = true;
     try {
         await store.dispatch('auth/getRegisterData', signupData);
@@ -57,7 +75,7 @@ const handleRegister = async () => {
 const closeAndRedirect = () => {
     showSuccessModal.value = false;
     router.push('/');
-}
+};
 </script>
 
 <template>
@@ -93,10 +111,14 @@ const closeAndRedirect = () => {
                 <BaseInput v-model="signupData.email" label="Email Address" placeholder="you@example.com" type="email"
                     required />
                 <BaseInput v-model="signupData.password" label="Password" placeholder="********" type="password"
-                    required />
+                    @keyInput="passwordCheck" required />
+                <p class="text-red-500 text-sm mb-4" style="font-size: 11px;"
+                    :style="{ display: passwordStatusDisplay }">The password field must be at least 8 characters</p>
                 <BaseInput v-model="signupData.confirmPassword" label="Confirm Password" placeholder="********"
                     type="password" required />
-                <p v-if="passwordMismatch" class="text-red-500 text-sm mb-4">Passwords do not match!</p>
+                <p class="text-red-500 text-xs mt-1 mb-3" :style="{ display: confirmPasswordStatusDisplay }">
+                    The password confirmation does not match
+                </p>
                 <BaseButton type="submit"
                     class="w-full bg-[#178A8D] text-white py-3 rounded-lg font-semibold hover:bg-teal-800 transition mt-2">
                     {{ isLoading ? 'Registering...' : 'Sign Up' }}
