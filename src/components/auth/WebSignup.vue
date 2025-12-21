@@ -24,6 +24,7 @@ const signupData = reactive({
 const passwordStatusDisplay = ref("none");
 const confirmPasswordStatusDisplay = ref("none");
 const imagePreview = ref(null);
+const agreedToTerms = ref(false);
 
 const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -60,6 +61,11 @@ const handleRegister = async () => {
         checkConfirmPassword();
         return;
     }
+
+    if (!agreedToTerms.value) {
+        return;
+    }
+
     isLoading.value = true;
     try {
         await store.dispatch('auth/getRegisterData', signupData);
@@ -119,6 +125,17 @@ const closeAndRedirect = () => {
                 <p class="text-red-500 text-xs mt-1 mb-3" :style="{ display: confirmPasswordStatusDisplay }">
                     The password confirmation does not match
                 </p>
+                <div class="flex items-start mb-4 mt-4">
+                    <div class="flex items-center h-5">
+                        <input id="terms" type="checkbox" v-model="agreedToTerms"
+                            class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-teal-300 accent-teal-700 cursor-pointer"
+                            required>
+                    </div>
+                    <label for="terms" class="ml-2 text-sm font-medium text-gray-500 cursor-pointer select-none">
+                        By clicking sign up, I hereby agree and consent to <a href="#" class="text-[#178A8D] hover:underline">Term & Conditions;</a> Term I confirm that I have read
+                        <a href="#" class="text-[#178A8D] hover:underline">Privacy Policy.</a>
+                    </label>
+                </div>
                 <BaseButton type="submit"
                     class="w-full bg-[#178A8D] text-white py-3 rounded-lg font-semibold hover:bg-teal-800 transition mt-2">
                     {{ isLoading ? 'Registering...' : 'Sign Up' }}

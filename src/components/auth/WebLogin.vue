@@ -41,7 +41,7 @@ const handleLogin = async () => {
             <form @submit.prevent="handleLogin">
                 <BaseInput v-model="loginData.email" label="Email Address" placeholder="you@example.com" type="email"
                     required />
-                <BaseInput v-model="loginData.password" label="Password" placeholder="••••••••" type="password"
+                <BaseInput v-model="loginData.password" label="Password" placeholder="********" type="password"
                     required />
                 <BaseButton type="submit"
                     class="w-full bg-[#178A8D] text-white py-3 rounded-lg font-semibold hover:bg-teal-800 transition mt-2">
