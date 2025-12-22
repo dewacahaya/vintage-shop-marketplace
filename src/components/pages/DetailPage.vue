@@ -213,7 +213,7 @@ const staticInfo = {
 
     <base-modal :isOpen="showSuccessModal" @close="showSuccessModal = false">
         <div class="flex flex-col items-center text-center px-4 py-2">
-            <img src="@/assets/images/cart.png" alt="Success Icon" class="w-24 mb-6">
+            <img src="@/assets/images/add-to-cart.svg" alt="Success Icon" class="w-36 mb-6">
             <h1 class="text-xl font-bold text-slate-900 mb-2">
                 Product successfully added to cart!
             </h1>

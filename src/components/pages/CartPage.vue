@@ -44,18 +44,10 @@ const removeItem = (index) => {
         store.dispatch('cart/removeFromCart', index);
     }
 };
-
 const goToCheckout = () => {
     router.push({ name: 'checkout' });
 }
 
-// const checkoutDisabled = computed(() => {
-//     if (cartItems.value.length === 0) {
-//         return true;
-//     } else {
-//         return false;
-//     }
-// });
 </script>
 
 <template>
@@ -117,7 +109,7 @@ const goToCheckout = () => {
                         </div>
                     </div>
                     <div v-else class="flex flex-col justify-center items-center text-center py-12 text-slate-500">
-                        <img src="@/assets/images/cart2.png" alt="cart" class="w-32 mb-6 opacity-60">
+                        <img src="@/assets/images/shopping-cart.svg" alt="cart" class="w-32 mb-6 opacity-60">
                         <p class="text-xl font-bold mb-2">Your cart is empty.</p>
                         <p class="text-sm">Find your favorite items and add to cart before check out.</p>
                         <router-link to="/products" class="mt-4 inline-block">

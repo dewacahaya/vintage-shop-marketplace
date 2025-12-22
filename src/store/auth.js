@@ -113,7 +113,6 @@ export default {
                 console.log(error);
             }
         },
-
         autoLogin({ commit, dispatch }) {
             const token = Cookies.get("jwt");
             const uid = Cookies.get("UID");
